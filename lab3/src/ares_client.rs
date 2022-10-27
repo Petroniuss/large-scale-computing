@@ -4,6 +4,9 @@ use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 use std::str::FromStr;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -56,7 +59,6 @@ pub(crate) struct GetJobInfoResponseBody {
 pub(crate) enum Status {
     QUEUED,
     FINISHED,
-
     RUNNING,
 }
 
@@ -66,7 +68,7 @@ pub(crate) fn submit_job(
     proxy_header: &str,
 ) -> SubmitJobResponseBody {
     let request_body_json = serde_json::to_string_pretty(&request_body).unwrap();
-    println!("Request to POST /api/jobs: {}", request_body_json);
+    println!("Request to POST: {}", request_body_json);
 
     let response = client
         .post("https://submit.plgrid.pl/api/jobs")
@@ -78,9 +80,13 @@ pub(crate) fn submit_job(
     parse_response(response)
 }
 
-pub(crate) fn get_job_info(job_id: &str, client: &Client, proxy_header: &str) -> GetJobInfoResponseBody {
+pub(crate) fn get_job_info(
+    job_id: &str,
+    client: &Client,
+    proxy_header: &str,
+) -> GetJobInfoResponseBody {
     let endpoint = format!("https://submit.plgrid.pl/api/jobs/{job_id}");
-    println!("Request to GET /api/jobs: {}", endpoint);
+    println!("Request to GET: {}", endpoint);
 
     let response = client
         .get(endpoint)
@@ -91,9 +97,36 @@ pub(crate) fn get_job_info(job_id: &str, client: &Client, proxy_header: &str) ->
     parse_response(response)
 }
 
+pub(crate) fn download_file(
+    remote_file_path: &str,
+    local_file_name: &str,
+    client: &Client,
+    proxy_header: &str,
+) {
+    let endpoint = format!("https://data.plgrid.pl/download/ares/{remote_file_path}");
+    println!("Request to GET: {}", endpoint);
+
+    let response = client
+        .get(endpoint)
+        .headers(default_headers(proxy_header))
+        .send()
+        .unwrap();
+
+    let status = response.status();
+    if status.is_success() {
+        let path = Path::new(local_file_name);
+        let mut file = File::create(&path).unwrap();
+
+        let bytes = response.bytes().unwrap();
+        file.write_all(bytes.as_ref()).unwrap();
+    } else {
+        failure::<Value>(response, status);
+    }
+}
+
 fn parse_response<T>(response: Response) -> T
-    where
-        T: DeserializeOwned,
+where
+    T: DeserializeOwned,
 {
     let status = response.status();
     if status.is_success() {
@@ -104,8 +137,8 @@ fn parse_response<T>(response: Response) -> T
 }
 
 fn success<T>(response: Response) -> T
-    where
-        T: DeserializeOwned,
+where
+    T: DeserializeOwned,
 {
     let success_body = response.json::<Value>().unwrap();
     println!("Request success: {:#?}", success_body);
@@ -114,8 +147,8 @@ fn success<T>(response: Response) -> T
 }
 
 fn failure<T>(response: Response, status: StatusCode) -> T
-    where
-        T: DeserializeOwned,
+where
+    T: DeserializeOwned,
 {
     let failure_body = response.json::<Value>().unwrap();
     println!(
@@ -127,7 +160,7 @@ fn failure<T>(response: Response, status: StatusCode) -> T
     panic!();
 }
 
-fn default_headers(proxy_header: &str) -> HeaderMap {
+pub(crate) fn default_headers(proxy_header: &str) -> HeaderMap {
     return HeaderMap::from_iter([
         (CONTENT_TYPE, HeaderValue::from_static("application/json")),
         (

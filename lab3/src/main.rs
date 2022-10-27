@@ -1,31 +1,30 @@
-mod rimrock_client;
+mod ares_client;
 
-extern crate core;
-
-use std::{env, thread, time};
+use crate::ares_client::{download_file, ScheduleJobRequestBody, Status};
 use reqwest::blocking::Client;
-use crate::rimrock_client::{ScheduleJobRequestBody, Status};
-
-// todo fix the script, add modules.
-// todo upload the file to ares.
+use std::time::Duration;
+use std::{env, thread, time};
 
 fn main() {
     if let Some(proxy) = env::var_os("PROXY") {
         let proxy = proxy.to_str().unwrap();
 
         let sample_script = "\
-            #!/bin/bash \n\
+            #!/bin/bash
             #SBATCH -A plglscclass-cpu \n\
             #SBATCH -p plgrid \n\
-            #SBATCH -N 1\n\
-            #SBATCH --ntasks-per-node=1 \n\
-            #SBATCH -t 00:01:00 \n\
-            sleep 5 \n\
+            #SBATCH -N 1 \n\
+            #SBATCH --ntasks-per-node=4 \n\
+            #SBATCH -t 00:10:00 \n\
+            module add xvfb blender \n\
+            xvfb-run -a blender \
+                -noaudio ./large-scale-computing/lab3/halloween_spider.blend \
+                --render-output ./frame_1.png --render-frame 1 \n\
             exit 0\
         ";
 
         let client = Client::new();
-        let submit_job_response = rimrock_client::submit_job(
+        let submit_job_response = ares_client::submit_job(
             &ScheduleJobRequestBody {
                 host: "ares.cyfronet.pl",
                 script: sample_script,
@@ -34,16 +33,25 @@ fn main() {
             &proxy,
         );
 
+        let mut total_time_waiting = Duration::from_secs(0);
         loop {
-            let response = rimrock_client::get_job_info(&submit_job_response.job_id, &client, &proxy);
+            println!("Waited for: {}s", total_time_waiting.as_secs());
+            let response = ares_client::get_job_info(&submit_job_response.job_id, &client, &proxy);
 
             if response.status == Status::FINISHED {
                 println!("{:#?}", response);
                 break;
             }
 
-            thread::sleep(time::Duration::from_secs(2));
+            let next_duration = time::Duration::from_secs(10);
+            thread::sleep(next_duration);
+            total_time_waiting += next_duration;
         }
+
+        let local_file_name = "frame.png";
+        let remote_file_path = "/net/people/plgrid/plgpwojtyczek/frame_1.png0001.png";
+        download_file(remote_file_path, local_file_name, &client, &proxy);
+        println!("Downloaded file: {} as {}", remote_file_path, local_file_name);
     } else {
         panic!("$PROXY variable must be set to a valid certificate.");
     }
