@@ -1,0 +1,1 @@
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin

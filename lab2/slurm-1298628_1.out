@@ -1,0 +1,18 @@
+Blender 3.1.2 (hash cc66d1020c3b built 2022-03-31 23:36:08)
+/run/user/113496/gvfs/ non-existent directory
+Read blend: /net/people/plgrid/plgpwojtyczek/large-scale-computing/lab1/ripple.blend
+Fra:1 Mem:69.69M (Peak 79.29M) | Time:00:00.98 | Syncing camera
+Fra:1 Mem:69.92M (Peak 79.29M) | Time:00:00.98 | Syncing geonodes_bubbles
+Fra:1 Mem:70.90M (Peak 79.29M) | Time:00:01.04 | Syncing geonodes_water
+Fra:1 Mem:72.91M (Peak 79.29M) | Time:00:01.07 | Syncing geonodes_floating
+Fra:1 Mem:73.72M (Peak 79.29M) | Time:00:01.16 | Syncing geonodes_droplets
+Fra:1 Mem:74.49M (Peak 79.29M) | Time:00:01.16 | Syncing box
+Fra:1 Mem:74.80M (Peak 79.29M) | Time:00:01.22 | Syncing geonodes_pebbles
+Fra:1 Mem:75.55M (Peak 79.29M) | Time:00:01.29 | Syncing box_bottom
+Fra:1 Mem:75.45M (Peak 79.29M) | Time:00:01.34 | Rendering 1 / 17 samples
+Fra:1 Mem:73.09M (Peak 79.29M) | Time:00:52.69 | Rendering 16 / 16 samples
+Saved: './frame_1.png0001.png'
+ Time: 00:56.40 (Saving: 00:00.53)
+
+
+Blender quit
