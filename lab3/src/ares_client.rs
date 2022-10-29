@@ -58,8 +58,9 @@ pub(crate) struct GetJobInfoResponseBody {
 #[derive(Deserialize, Serialize, Debug, Eq, PartialEq)]
 pub(crate) enum Status {
     QUEUED,
-    FINISHED,
     RUNNING,
+    FINISHED,
+    ERROR
 }
 
 pub(crate) fn submit_job(

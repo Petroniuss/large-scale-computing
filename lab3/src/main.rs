@@ -15,10 +15,9 @@ fn main() {
             #SBATCH -p plgrid \n\
             #SBATCH -N 1 \n\
             #SBATCH --ntasks-per-node=4 \n\
-            #SBATCH -t 00:10:00 \n\
             module add xvfb blender \n\
             xvfb-run -a blender \
-                -noaudio ./large-scale-computing/lab3/halloween_spider.blend \
+                --background -noaudio ./large-scale-computing/lab3/halloween_spider.blend \
                 --render-output ./frame_1.png --render-frame 1 \n\
             exit 0\
         ";
@@ -35,17 +34,20 @@ fn main() {
 
         let mut total_time_waiting = Duration::from_secs(0);
         loop {
+            let next_duration = time::Duration::from_secs(30);
+            thread::sleep(next_duration);
+            total_time_waiting += next_duration;
+
             println!("Waited for: {}s", total_time_waiting.as_secs());
             let response = ares_client::get_job_info(&submit_job_response.job_id, &client, &proxy);
 
-            if response.status == Status::FINISHED {
-                println!("{:#?}", response);
-                break;
+            match response.status {
+                Status::FINISHED | Status::ERROR => {
+                    println!("{:#?}", response);
+                    break;
+                }
+                _ => { }
             }
-
-            let next_duration = time::Duration::from_secs(10);
-            thread::sleep(next_duration);
-            total_time_waiting += next_duration;
         }
 
         let local_file_name = "frame.png";
