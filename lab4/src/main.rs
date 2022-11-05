@@ -1,7 +1,9 @@
 use color_eyre::Result;
 use std::time::Duration;
 
-static AMI_ID: &'static str = "ami-05bfb9c51e8c55557";
+static AMI_ID: &'static str = "ami-0f69e088cfd079851";
+static SG_ID: &'static str = "sg-094fe55227ac4ca7d";
+static SUBNET_ID: &'static str = "subnet-037c341e911f5218c";
 
 use aws_sdk_ec2::{
     model::{Instance, InstanceStateName, InstanceStatus, InstanceType, SummaryStatus},
@@ -107,6 +109,8 @@ async fn spawn_instance(client: &Client) -> Result<String> {
         .run_instances()
         .image_id(AMI_ID)
         .instance_type(InstanceType::T2Micro)
+        .security_group_ids(SG_ID)
+        .subnet_id(SUBNET_ID)
         .min_count(1)
         .max_count(1)
         .send()
@@ -124,16 +128,11 @@ async fn spawn_instance(client: &Client) -> Result<String> {
 async fn describe_instance_status(client: &Client, instance_id: &str) -> Result<InstanceStatus> {
     let result = client
         .describe_instance_status()
+        .include_all_instances(true)
         .instance_ids(instance_id)
         .send()
-        .await?;
-
-    let foo = result
-        .instance_statuses();
-
-    println!("{:?}", foo);
-
-    let bar = foo
+        .await?
+        .instance_statuses()
         .unwrap()
         .into_iter()
         .next()
@@ -141,7 +140,7 @@ async fn describe_instance_status(client: &Client, instance_id: &str) -> Result<
         .unwrap()
         .clone();
 
-    Ok(bar)
+    Ok(result)
 }
 
 async fn describe_instance(client: &Client, instance_id: &str) -> Result<Instance> {
