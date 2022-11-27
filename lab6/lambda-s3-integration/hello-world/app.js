@@ -20,14 +20,16 @@ exports.lambdaHandler = async (event, context) => {
         let newObjectData = `${objectData}\n${now}`;
 
         let destinationBucket = "lsc-test-bucket-1111231231-destination";
-        console.log(`Uploading ${bucket}${key} to ${destinationBucket}${key}.`)
-        await s3.putObject(
+        console.log(`Uploading ${bucket}/${key} to ${destinationBucket}/${key}.`)
+        const result = await s3.putObject(
             {
                 Bucket: destinationBucket,
                 Body: newObjectData,
                 Key: key
             }
-        );
+        ).promise();
+
+        console.log(result);
 
         return 'OK';
     } catch (err) {

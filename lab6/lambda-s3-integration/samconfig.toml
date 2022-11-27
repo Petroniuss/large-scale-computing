@@ -6,6 +6,6 @@ stack_name = "lsc-lambda-s3-integration"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-veqa8qai4zbt"
 s3_prefix = "lsc-lambda-s3-integration"
 region = "us-east-1"
-confirm_changeset = true
+confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
