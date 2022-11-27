@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "sam-app-first-function"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-veqa8qai4zbt"
+s3_prefix = "sam-app-first-function"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
