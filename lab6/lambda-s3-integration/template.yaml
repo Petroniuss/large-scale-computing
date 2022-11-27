@@ -23,6 +23,8 @@ Resources:
             Events: s3:ObjectCreated:*
   SrcBucket:
     Type: AWS::S3::Bucket
+    Properties:
+      BucketName: lsc-test-bucket-1111231231-source
 
 Outputs:
   HelloWorldFunction:
