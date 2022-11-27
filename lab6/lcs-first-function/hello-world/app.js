@@ -15,19 +15,21 @@ let response;
  * 
  */
 exports.lambdaHandler = async (event, context) => {
-    try {
-        // const ret = await axios(url);
-        response = {
+    let params = event.queryStringParameters;
+    if (params && params.name) {
+        let name = params.name;
+        return response = {
             'statusCode': 200,
             'body': JSON.stringify({
-                message: 'hello world',
-                // location: ret.data.trim()
+                message: `Hello ${name}!`,
             })
-        }
-    } catch (err) {
-        console.log(err);
-        return err;
+        };
+    } else {
+        return response = {
+            'statusCode': 400,
+            'body': JSON.stringify({
+                message: 'Missing ?name parameter',
+            })
+        };
     }
-
-    return response
 };
