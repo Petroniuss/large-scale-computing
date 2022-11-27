@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda-s3-integration
+
+  Sample SAM Template for lambda-s3-integration
+  
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: arn:aws:iam::238139258325:role/LabRole
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      CodeUri: hello-world/
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: S3
+          Properties:
+            Bucket: !Ref SrcBucket
+            Events: s3:ObjectCreated:*
+  SrcBucket:
+    Type: AWS::S3::Bucket
+
+Outputs:
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
